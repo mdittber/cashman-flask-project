@@ -13,7 +13,6 @@ transactions = [
   Expense('Rock Concert', 100)
 ]
 
-
 @app.route('/incomes')
 def get_incomes():
   schema = IncomeSchema(many=True)
@@ -31,7 +30,6 @@ def add_income():
   return "", 204
 
 
-
 @app.route('/expenses')
 def get_expenses():
   schema = ExpenseSchema(many=True)
@@ -46,8 +44,6 @@ def add_expense():
   expense = ExpenseSchema().load(request.get_json())
   transactions.append(expense)
   return "", 204
-
-
 
 
 if __name__ == "__main__":
