@@ -19,7 +19,6 @@ AUTH0_DOMAIN = "dev-m-7frtqz.eu.auth0.com"
 API_AUDIENCE = "https://dev-m-7frtqz.eu.auth0.com/api/v2/"
 ALGORITHMS = ["RS256"]
 
-APP = Flask(__name__)
 app = Flask(__name__)
 
 
@@ -30,7 +29,7 @@ class AuthError(Exception):
         self.status_code = status_code
 
 
-@APP.errorhandler(AuthError)
+@app.errorhandler(AuthError)
 def handle_auth_error(ex):
     response = jsonify(ex.error)
     response.status_code = ex.status_code
@@ -140,7 +139,7 @@ def requires_scope(required_scope):
 # Controllers API
 
 # This doesn't need authentication
-@APP.route("/api/public")
+@app.route("/api/public")
 @cross_origin(headers=["Content-Type", "Authorization"])
 def public():
     response = "Hello from a public endpoint! You don't need to be authenticated to see this."
@@ -148,7 +147,7 @@ def public():
 
 
 # This needs authentication
-@APP.route("/api/private")
+@app.route("/api/private")
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth
 def private():
@@ -157,7 +156,7 @@ def private():
 
 
 # This needs authorization
-@APP.route("/api/private-scoped")
+@app.route("/api/private-scoped")
 @cross_origin(headers=["Content-Type", "Authorization"])
 @requires_auth
 def private_scoped():
