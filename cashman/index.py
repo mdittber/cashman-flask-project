@@ -19,16 +19,16 @@ AUTH0_DOMAIN = "dev-m-7frtqz.eu.auth0.com"
 API_AUDIENCE = "https://dev-m-7frtqz.eu.auth0.com/api/v2/"
 ALGORITHMS = ["RS256"]
 
-
-
 APP = Flask(__name__)
 app = Flask(__name__)
+
 
 # Error handler
 class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
         self.status_code = status_code
+
 
 @APP.errorhandler(AuthError)
 def handle_auth_error(ex):
@@ -46,35 +46,37 @@ def get_token_auth_header():
     auth = request.headers.get("Authorization", None)
     if not auth:
         raise AuthError({"code": "authorization_header_missing",
-                        "description":
-                            "Authorization header is expected"}, 401)
+                         "description":
+                             "Authorization header is expected"}, 401)
 
     parts = auth.split()
 
     if parts[0].lower() != "bearer":
         raise AuthError({"code": "invalid_header",
-                        "description":
-                            "Authorization header must start with"
-                            " Bearer"}, 401)
+                         "description":
+                             "Authorization header must start with"
+                             " Bearer"}, 401)
     elif len(parts) == 1:
         raise AuthError({"code": "invalid_header",
-                        "description": "Token not found"}, 401)
+                         "description": "Token not found"}, 401)
     elif len(parts) > 2:
         raise AuthError({"code": "invalid_header",
-                        "description":
-                            "Authorization header must be"
-                            " Bearer token"}, 401)
+                         "description":
+                             "Authorization header must be"
+                             " Bearer token"}, 401)
 
     token = parts[1]
     return token
 
+
 def requires_auth(f):
     """Determines if the Access Token is valid
     """
+
     @wraps(f)
     def decorated(*args, **kwargs):
         token = get_token_auth_header()
-        jsonurl = urlopen("https://"+AUTH0_DOMAIN+"/.well-known/jwks.json")
+        jsonurl = urlopen("https://" + AUTH0_DOMAIN + "/.well-known/jwks.json")
         jwks = json.loads(jsonurl.read())
         unverified_header = jwt.get_unverified_header(token)
         rsa_key = {}
@@ -94,26 +96,27 @@ def requires_auth(f):
                     rsa_key,
                     algorithms=ALGORITHMS,
                     audience=API_AUDIENCE,
-                    issuer="https://"+AUTH0_DOMAIN+"/"
+                    issuer="https://" + AUTH0_DOMAIN + "/"
                 )
             except jwt.ExpiredSignatureError:
                 raise AuthError({"code": "token_expired",
-                                "description": "token is expired"}, 401)
+                                 "description": "token is expired"}, 401)
             except jwt.JWTClaimsError:
                 raise AuthError({"code": "invalid_claims",
-                                "description":
-                                    "incorrect claims,"
-                                    "please check the audience and issuer"}, 401)
+                                 "description":
+                                     "incorrect claims,"
+                                     "please check the audience and issuer"}, 401)
             except Exception:
                 raise AuthError({"code": "invalid_header",
-                                "description":
-                                    "Unable to parse authentication"
-                                    " token."}, 401)
+                                 "description":
+                                     "Unable to parse authentication"
+                                     " token."}, 401)
 
             _request_ctx_stack.top.current_user = payload
             return f(*args, **kwargs)
         raise AuthError({"code": "invalid_header",
-                        "description": "Unable to find appropriate key"}, 401)
+                         "description": "Unable to find appropriate key"}, 401)
+
     return decorated
 
 
@@ -127,10 +130,10 @@ def requires_scope(required_scope):
     token = get_token_auth_header()
     unverified_claims = jwt.get_unverified_claims(token)
     if unverified_claims.get("scope"):
-            token_scopes = unverified_claims["scope"].split()
-            for token_scope in token_scopes:
-                if token_scope == required_scope:
-                    return True
+        token_scopes = unverified_claims["scope"].split()
+        for token_scope in token_scopes:
+            if token_scope == required_scope:
+                return True
     return False
 
 
@@ -143,6 +146,7 @@ def public():
     response = "Hello from a public endpoint! You don't need to be authenticated to see this."
     return jsonify(message=response)
 
+
 # This needs authentication
 @APP.route("/api/private")
 @cross_origin(headers=["Content-Type", "Authorization"])
@@ -150,6 +154,7 @@ def public():
 def private():
     response = "Hello from a private endpoint! You need to be authenticated to see this."
     return jsonify(message=response)
+
 
 # This needs authorization
 @APP.route("/api/private-scoped")
@@ -163,45 +168,47 @@ def private_scoped():
         "code": "Unauthorized",
         "description": "You don't have access to this resource"
     }, 403)
+
+
 ########################################################################################################################
 transactions = [
-  Income('Salary', 5000),
-  Income('Dividends', 200),
-  Expense('pizza', 50),
-  Expense('Rock Concert', 100)
+    Income('Salary', 5000),
+    Income('Dividends', 200),
+    Expense('pizza', 50),
+    Expense('Rock Concert', 100)
 ]
 
 
 @app.route('/incomes')
 def get_incomes():
-  schema = IncomeSchema(many=True)
-  incomes = schema.dump(
-    filter(lambda t: t.type == TransactionType.INCOME, transactions)
-  )
-  return jsonify(incomes)
+    schema = IncomeSchema(many=True)
+    incomes = schema.dump(
+        filter(lambda t: t.type == TransactionType.INCOME, transactions)
+    )
+    return jsonify(incomes)
 
 
 @app.route('/incomes', methods=['POST'])
 def add_income():
-  income = IncomeSchema().load(request.get_json())
-  transactions.append(income)
-  return "", 204
+    income = IncomeSchema().load(request.get_json())
+    transactions.append(income)
+    return "", 204
 
 
 @app.route('/expenses')
 def get_expenses():
-  schema = ExpenseSchema(many=True)
-  expenses = schema.dump(
-      filter(lambda t: t.type == TransactionType.EXPENSE, transactions)
-  )
-  return jsonify(expenses)
+    schema = ExpenseSchema(many=True)
+    expenses = schema.dump(
+        filter(lambda t: t.type == TransactionType.EXPENSE, transactions)
+    )
+    return jsonify(expenses)
 
 
 @app.route('/expenses', methods=['POST'])
 def add_expense():
-  expense = ExpenseSchema().load(request.get_json())
-  transactions.append(expense)
-  return "", 204
+    expense = ExpenseSchema().load(request.get_json())
+    transactions.append(expense)
+    return "", 204
 
 
 if __name__ == "__main__":
