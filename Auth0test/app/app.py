@@ -1,4 +1,4 @@
-from flask import Flask, url_for, redirect, session
+from flask import Flask, url_for, redirect, session, render_template
 from authlib.integrations.flask_client import OAuth
 
 app = Flask(__name__)
@@ -13,27 +13,24 @@ oauth.register(name='google',
                authorize_url='https://accounts.google.com/o/oauth2/auth',
                authorize_params=None,
                api_base_url='https://www.googleapis.com/oauth2/v1',
-               client_kwargs={'scope': 'openid profile email'}
+               client_kwargs={'scope': 'openid profile email'})
 
 
-
-@app.route("/")
+@app.route('/')
 def hello_world():
-  return "Hello, World!"
-
-from flask import url_for, render_template
+    return "Hello, World!"
 
 
 @app.route('/login')
 def login():
-  google = oauth.create_client('google')
-  redirect_uri = url_for('authorize', _external=True)
-  return google.authorize_redirect(redirect_uri)
+    google = oauth.create_client('google')
+    redirect_uri = url_for('authorize', _external=True)
+    return google.authorize_redirect(redirect_uri)
 
 
 @app.route('/authorize')
 def authorize():
-    google =oauth.create_client('google')
+    google = oauth.create_client('google')
     token = google.authorize_access_token()
     resp = google.get('userinfo')
     user_info = resp.json()
