@@ -6,6 +6,10 @@ name = "pypi"
 [packages]
 flask = "*"
 marshmallow = "*"
+python-dotenv = "*"
+python-jose = "*"
+flask-cors = "*"
+six = "*"
 
 [dev-packages]
 
