@@ -186,7 +186,7 @@ transactions = [
 
 @app.route('/')
 def index():
-    return "This page is intentionally empty. Go to: /incomes or /expenses"
+    return "Hello World! This page is intentionally empty. Go to: /incomes or /expenses"
 
 @app.route('/incomes')
 def get_incomes():
