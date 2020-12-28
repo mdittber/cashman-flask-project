@@ -1,3 +1,10 @@
+# TODO:
+# * Clean up Auth0test
+# * Remove any hard coded parts
+# * Containerize using Docker
+# * Remove /app.py,... comments, This needs authorization
+# * Remove index.py
+
 from flask import Flask, jsonify, request
 
 from cashman.model.expense import Expense, ExpenseSchema
@@ -177,6 +184,9 @@ transactions = [
     Expense('Rock Concert', 100)
 ]
 
+@app.route('/')
+def index():
+    return "This page is intentionally empty. Go to: /incomes or /expenses"
 
 @app.route('/incomes')
 def get_incomes():
